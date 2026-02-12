@@ -26,9 +26,8 @@ public class RetirementCalculator {
             	);
 
            
-            System.out.print("Run another simulation? (y/n): ");
-            String answer = sc.next().trim().toLowerCase();
-            runAgain = answer.equals("y") || answer.equals("yes");
+            runAgain = askRunAgain(sc);
+
         }
 
         sc.close();
@@ -129,63 +128,92 @@ public class RetirementCalculator {
             int compChoice,
             double contributionIncreasePercent
     ) {
-        // 1) Convert compChoice to periods per year
+        // Convert compChoice to periods per year + label
         int periodsPerYear;
+        String compoundingLabel;
+
         if (compChoice == 1) {
-            periodsPerYear = 1;      // annually
+            periodsPerYear = 1;
+            compoundingLabel = "Annually";
         } else if (compChoice == 2) {
-            periodsPerYear = 12;     // monthly
+            periodsPerYear = 12;
+            compoundingLabel = "Monthly";
         } else {
-            periodsPerYear = 365;    // daily
+            periodsPerYear = 365;
+            compoundingLabel = "Daily";
         }
 
-        // 2) Convert APR percent to rate per period
         double ratePerPeriod = (aprPercent / 100.0) / periodsPerYear;
 
-        // 3) Track values
+        // Print header block (matches professor style)
+        System.out.println();
+        System.out.println("Retirement Growth Simulator");
+        System.out.println("----------------------------");
+        System.out.println();
+        System.out.println("Current Age: " + currentAge);
+        System.out.println("Retirement Age: " + retirementAge);
+        System.out.printf("Annual Rate: %.2f%%%n", aprPercent);
+        System.out.println("Compounding: " + compoundingLabel);
+        System.out.printf("Annual Contribution (Year 1): $%.2f%n", annualContribution);
+        System.out.printf("Annual Contribution Increase: %.2f%%%n", contributionIncreasePercent);
+        System.out.println();
+
+        // Table header (matches example)
+        System.out.println("Year-by-Year Projection");
+        System.out.println("--------------------------------------------------------------------------");
+        System.out.println("Age | Start Balance     | Contributions     | Interest Earned   | End Balance");
+        System.out.println("--------------------------------------------------------------------------");
+
         double balance = startingBalance;
         double yearlyContribution = annualContribution;
-        double totalContributed = 0;
 
-        // 4) Print table header
-        System.out.println();
-        System.out.println("Year | Age | Contribution | End Balance");
-        System.out.println("----------------------------------------");
+        double totalContributed = 0.0;
+        double totalInterestEarned = 0.0;
 
-        // 5) Run yearly simulation
         for (int age = currentAge; age < retirementAge; age++) {
 
-            double contributionThisYear = 0;
+            double startBalance = balance;
+            double contributionsThisYear = 0.0;
+
             double contributionPerPeriod = yearlyContribution / periodsPerYear;
 
             for (int p = 0; p < periodsPerYear; p++) {
+                // deposit
                 balance += contributionPerPeriod;
-                totalContributed += contributionPerPeriod;
-                contributionThisYear += contributionPerPeriod;
+                contributionsThisYear += contributionPerPeriod;
 
-                balance = balance * (1 + ratePerPeriod);
+                // interest
+                balance = balance * (1.0 + ratePerPeriod);
             }
 
-            System.out.printf("%4d | %3d | %12.2f | %11.2f%n",
-                    (age - currentAge + 1),
-                    age,
-                    contributionThisYear,
-                    balance
+            double endBalance = balance;
+
+            double interestEarnedThisYear = endBalance - startBalance - contributionsThisYear;
+
+            totalContributed += contributionsThisYear;
+            totalInterestEarned += interestEarnedThisYear;
+
+            // Age at end of year is age + 1 (matches example)
+            System.out.printf(
+                    "%3d | $%14.2f | $%15.2f | $%15.2f | $%11.2f%n",
+                    (age + 1),
+                    startBalance,
+                    contributionsThisYear,
+                    interestEarnedThisYear,
+                    endBalance
             );
 
-            // increase contribution for next year
-            yearlyContribution = yearlyContribution * (1 + (contributionIncreasePercent / 100.0));
+            // Increase annual contribution for next year
+            yearlyContribution = yearlyContribution * (1.0 + (contributionIncreasePercent / 100.0));
         }
 
-        double totalInterestEarned = balance - startingBalance - totalContributed;
-
-        System.out.println("----------------------------------------");
-        System.out.printf("Total contributed: %.2f%n", totalContributed);
-        System.out.printf("Total interest:    %.2f%n", totalInterestEarned);
-        System.out.printf("Final balance:     %.2f%n", balance);
+        System.out.println("--------------------------------------------------------------------------");
+        System.out.println();
+        System.out.println("Summary");
+        System.out.printf("Total Contributions: $%.2f%n", totalContributed);
+        System.out.printf("Total Interest Earned: $%.2f%n", totalInterestEarned);
+        System.out.printf("Ending Balance at Age %d: $%.2f%n", retirementAge, balance);
         System.out.println();
     }
-
-
+    
 }
-
