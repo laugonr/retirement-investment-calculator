@@ -25,13 +25,7 @@ public class RetirementCalculator {
             	    contributionIncreasePercent
             	);
 
-            System.out.println("You entered current age: " + currentAge);
-            System.out.println("You entered retirement age: " + retirementAge);
-            System.out.println("Current balance: " + currentBalance);
-            System.out.println("Annual contribution: " + annualContribution);
-            System.out.println("APR (%): " + aprPercent);
-            System.out.println("Contribution increase (%): " + contributionIncreasePercent);
-            System.out.println("Compounding choice: " + compChoice);
+           
             System.out.print("Run another simulation? (y/n): ");
             String answer = sc.next().trim().toLowerCase();
             runAgain = answer.equals("y") || answer.equals("yes");
