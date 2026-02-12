@@ -15,7 +15,15 @@ public class RetirementCalculator {
             double aprPercent = readDoubleInRange(sc, "Enter annual interest rate (0-30) (APR %): ", 0, 30);
             double contributionIncreasePercent =readDoubleInRange(sc, "Enter annual contribution increase (0-20) (%): ", 0, 20);
             int compChoice = readCompoundingChoice(sc);
-
+            runSimulation(
+            	    currentAge,
+            	    retirementAge,
+            	    currentBalance,
+            	    annualContribution,
+            	    aprPercent,
+            	    compChoice,
+            	    contributionIncreasePercent
+            	);
 
             System.out.println("You entered current age: " + currentAge);
             System.out.println("You entered retirement age: " + retirementAge);
@@ -117,5 +125,73 @@ public class RetirementCalculator {
             System.out.println("Invalid selection. Please enter 1, 2, or 3.");
         }
     }
+    
+    public static void runSimulation(
+            int currentAge,
+            int retirementAge,
+            double startingBalance,
+            double annualContribution,
+            double aprPercent,
+            int compChoice,
+            double contributionIncreasePercent
+    ) {
+        // 1) Convert compChoice to periods per year
+        int periodsPerYear;
+        if (compChoice == 1) {
+            periodsPerYear = 1;      // annually
+        } else if (compChoice == 2) {
+            periodsPerYear = 12;     // monthly
+        } else {
+            periodsPerYear = 365;    // daily
+        }
+
+        // 2) Convert APR percent to rate per period
+        double ratePerPeriod = (aprPercent / 100.0) / periodsPerYear;
+
+        // 3) Track values
+        double balance = startingBalance;
+        double yearlyContribution = annualContribution;
+        double totalContributed = 0;
+
+        // 4) Print table header
+        System.out.println();
+        System.out.println("Year | Age | Contribution | End Balance");
+        System.out.println("----------------------------------------");
+
+        // 5) Run yearly simulation
+        for (int age = currentAge; age < retirementAge; age++) {
+
+            double contributionThisYear = 0;
+            double contributionPerPeriod = yearlyContribution / periodsPerYear;
+
+            for (int p = 0; p < periodsPerYear; p++) {
+                balance += contributionPerPeriod;
+                totalContributed += contributionPerPeriod;
+                contributionThisYear += contributionPerPeriod;
+
+                balance = balance * (1 + ratePerPeriod);
+            }
+
+            System.out.printf("%4d | %3d | %12.2f | %11.2f%n",
+                    (age - currentAge + 1),
+                    age,
+                    contributionThisYear,
+                    balance
+            );
+
+            // increase contribution for next year
+            yearlyContribution = yearlyContribution * (1 + (contributionIncreasePercent / 100.0));
+        }
+
+        double totalInterestEarned = balance - startingBalance - totalContributed;
+
+        System.out.println("----------------------------------------");
+        System.out.printf("Total contributed: %.2f%n", totalContributed);
+        System.out.printf("Total interest:    %.2f%n", totalInterestEarned);
+        System.out.printf("Final balance:     %.2f%n", balance);
+        System.out.println();
+    }
+
 
 }
+
