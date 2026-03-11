@@ -31,6 +31,12 @@ public class RetirementSimulation {
         int periodsPerYear = compoundingPeriod.getPeriodsPerYear();
         double ratePerPeriod = (aprPercent / 100.0) / periodsPerYear;
 
+        System.out.println();
+        System.out.println("Year-by-Year Projection");
+        System.out.println("--------------------------------------------------------------------------");
+        System.out.println("Age | Start Balance     | Contributions     | Interest Earned   | End Balance");
+        System.out.println("--------------------------------------------------------------------------");
+
         double balance = startingBalance;
         double yearlyContribution = annualContribution;
 
@@ -45,20 +51,30 @@ public class RetirementSimulation {
             double contributionPerPeriod = yearlyContribution / periodsPerYear;
 
             for (int p = 0; p < periodsPerYear; p++) {
-
                 balance += contributionPerPeriod;
                 contributionsThisYear += contributionPerPeriod;
-
-                balance = balance * (1 + ratePerPeriod);
+                balance = balance * (1.0 + ratePerPeriod);
             }
 
-            double interestEarned = balance - startBalance - contributionsThisYear;
+            double endBalance = balance;
+            double interestEarnedThisYear = endBalance - startBalance - contributionsThisYear;
 
             totalContributed += contributionsThisYear;
-            totalInterest += interestEarned;
+            totalInterest += interestEarnedThisYear;
 
-            yearlyContribution = yearlyContribution * (1 + contributionIncreasePercent / 100.0);
+            System.out.printf(
+                    "%3d | $%14.2f | $%15.2f | $%15.2f | $%11.2f%n",
+                    (age + 1),
+                    startBalance,
+                    contributionsThisYear,
+                    interestEarnedThisYear,
+                    endBalance
+            );
+
+            yearlyContribution = yearlyContribution * (1.0 + (contributionIncreasePercent / 100.0));
         }
+
+        System.out.println("--------------------------------------------------------------------------");
 
         return new SimulationResult(totalContributed, totalInterest, balance);
     }

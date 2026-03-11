@@ -20,4 +20,6 @@ public class SimulationResult {
     public double getFinalBalance() {
         return finalBalance;
     }
-}
+}	
+
+   
